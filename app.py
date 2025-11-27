@@ -40,8 +40,11 @@ def predict_to_deploy(image_path):
     label = class_dict.get(class_index, "unknown")
     return label, confidence
 
+@app.route('/')
+def index () :
+    return render_template("home.html")
 
-@app.route("/")
+@app.route("/model")
 def home():
     return render_template("index.html")
 
