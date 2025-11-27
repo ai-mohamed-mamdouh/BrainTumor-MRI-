@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brain Tumor MRI Classification</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* تعريف الألوان كمتغيرات ليسهل تغييرها */
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #10b981;
+            
+            /* ألوان الوضع الفاتح (الافتراضي) */
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: rgba(0,0,0,0.05);
+        }
+
+        /* ألوان الوضع المظلم */
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255,255,255,0.1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* تعديل عناصر Bootstrap لتعمل مع المتغيرات */
+        .bg-light {
+            background-color: var(--bg-body) !important;
+        }
+        
+        .bg-white {
+            background-color: var(--bg-card) !important;
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 100px 0 80px;
+            border-bottom-left-radius: 50px;
+            border-bottom-right-radius: 50px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.2);
+        }
+
+        .hero-img {
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            border: 5px solid rgba(255,255,255,0.2);
+            max-width: 100%;
+            transition: transform 0.3s;
+        }
+        
+        .hero-img:hover { transform: scale(1.02); }
+
+        /* Buttons */
+        .btn-cta-primary {
+            background-color: white;
+            color: var(--primary-color);
+            border: 2px solid white;
+            transition: all 0.3s;
+        }
+        .btn-cta-primary:hover {
+            background-color: transparent;
+            color: white;
+        }
+        .btn-cta-secondary {
+            background-color: transparent;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.5);
+            transition: all 0.3s;
+        }
+        .btn-cta-secondary:hover {
+            background-color: rgba(255,255,255,0.1);
+            border-color: white;
+            color: white;
+        }
+
+        /* Dark Mode Toggle Button Style */
+        .theme-toggle-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-left: 10px;
+        }
+        .theme-toggle-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: rotate(15deg);
+        }
+
+        /* Cards */
+        .feature-card, .card {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        .card { padding: 0; } /* Reset padding for bootstrap cards */
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        /* Section Titles */
+        .section-title {
+            color: var(--primary-color); /* Changed to primary for better visibility in dark mode */
+            font-weight: 700;
+            margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
+        }
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 4px;
+            background: var(--accent-color);
+            margin-top: 10px;
+            border-radius: 2px;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: #1e293b; /* Always dark */
+            color: #a5b4fc;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .code-comment { color: #64748b; }
+        .code-command { color: #fff; }
+
+        /* Badges */
+        .tech-badge {
+            font-size: 0.9rem;
+            padding: 8px 15px;
+            border-radius: 50px;
+            margin: 5px;
+            background-color: rgba(37, 99, 235, 0.1);
+            color: var(--primary-color);
+            font-weight: 600;
+            border: 1px solid rgba(37, 99, 235, 0.2);
+        }
+        [data-theme="dark"] .tech-badge {
+            background-color: rgba(37, 99, 235, 0.2);
+            color: #60a5fa;
+        }
+
+        /* Footer */
+        footer {
+            background: #0f172a;
+            color: white;
+            padding: 40px 0;
+            margin-top: 60px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .linkedin-btn {
+            background-color: #0077b5;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        .linkedin-btn:hover {
+            background-color: #005582;
+            color: white;
+        }
+        img.fluid-rounded {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-brain me-2"></i>Brain Tumor MRI</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="#overview">Overview</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#architecture">Model</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#metrics">Metrics</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#installation">Installation</a></li>
+                    
+                    <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+                        <a class="btn btn-success btn-sm px-3 fw-bold rounded-pill" href="/model">
+                            <i class="fas fa-play me-1"></i> Try Model
+                        </a>
+                    </li>
+
+                    <li class="nav-item mt-2 mt-lg-0">
+                        <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Dark Mode">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-section text-center">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 text-lg-start">
+                    <h1 class="display-4 fw-bold mb-3">Brain Tumor MRI Classification</h1>
+                    <p class="lead mb-4 opacity-90">An AI-powered system assisting patients and doctors in quick and accurate diagnosis of brain tumor MRI scans.</p>
+                    
+                    <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
+                        <a href="/model" class="btn btn-cta-primary btn-lg px-4 fw-bold rounded-pill shadow">
+                            <i class="fas fa-robot me-2"></i>Try Model Now
+                        </a>
+                        <a href="#installation" class="btn btn-cta-secondary btn-lg px-4 fw-bold rounded-pill">
+                            Installation
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 mt-5 mt-lg-0">
+                    <img src="{{ url_for('static', filename='images/cover.jpg') }}" alt="MRI Cover" class="hero-img">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        
+        <section id="overview" class="mb-5">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="feature-card">
+                        <h3 class="section-title"><i class="fas fa-microscope me-2"></i>Overview</h3>
+                        <p>The model classifies MRI images into different tumor categories and provides comprehensive diagnostic information:</p>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Tumor Name Classification</li>
+                            <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Confidence Score (%)</li>
+                            <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Disease Description</li>
+                            <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Medical Impact Analysis</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="feature-card">
+                        <h3 class="section-title"><i class="fas fa-database me-2"></i>Dataset</h3>
+                        <p>Sourced from <a href="https://www.kaggle.com/datasets/masoudnickparvar/brain-tumor-mri-dataset" target="_blank" class="text-decoration-none fw-bold">Kaggle</a>, processed using ImageDataGenerator.</p>
+                        <div class="d-flex justify-content-between align-items-center p-3 rounded mb-3" style="background: rgba(0,0,0,0.05);">
+                            <div><strong>Training Images</strong><br><span class="text-muted">5712 (4 Classes)</span></div>
+                            <div class="h3 text-primary mb-0"><i class="fas fa-layer-group"></i></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center p-3 rounded" style="background: rgba(0,0,0,0.05);">
+                            <div><strong>Testing Images</strong><br><span class="text-muted">1311 (4 Classes)</span></div>
+                            <div class="h3 text-success mb-0"><i class="fas fa-vial"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <img src="{{ url_for('static', filename='images/sample.png') }}" class="fluid-rounded" alt="Sample Data" style="max-height: 200px;">
+            </div>
+        </section>
+
+        <section id="architecture" class="mb-5 py-4">
+            <h2 class="section-title mb-4">🧠 Model Architecture</h2>
+            <div class="row align-items-center">
+                <div class="col-md-5">
+                    <p class="lead">Powered by <strong>Transfer Learning</strong>.</p>
+                    <p>We utilize the robust <strong>VGG16</strong> architecture as a feature extractor, combined with custom <strong>DNN classifier layers</strong> to achieve high precision.</p>
+                    <div class="mt-4">
+                        <h5>Technologies Used:</h5>
+                        <div class="d-flex flex-wrap">
+                            <span class="tech-badge">Python</span>
+                            <span class="tech-badge">TensorFlow</span>
+                            <span class="tech-badge">Keras</span>
+                            <span class="tech-badge">Flask</span>
+                            <span class="tech-badge">NumPy</span>
+                            <span class="tech-badge">Pillow</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-7 text-center">
+                    <img src="{{ url_for('static', filename='images/modelSummary.png') }}" alt="Model Summary" class="fluid-rounded border">
+                </div>
+            </div>
+        </section>
+
+        <section id="metrics" class="mb-5">
+            <h2 class="section-title">📈 Evaluation Metrics</h2>
+            <p class="text-muted mb-4">Evaluated using Accuracy, F1-score, Confusion Matrix, and ROC Curve.</p>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <h6 class="card-title fw-bold">Classification Report</h6>
+                            <img src="{{ url_for('static', filename='images/classificationReport.png') }}" alt="Classification Report" class="fluid-rounded mt-2">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <h6 class="card-title fw-bold">Confusion Matrix</h6>
+                            <img src="{{ url_for('static', filename='images/confusionMatrix.png') }}" alt="Confusion Matrix" class="fluid-rounded mt-2">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <h6 class="card-title fw-bold">ROC & AUC</h6>
+                            <img src="{{ url_for('static', filename='images/roc&Auc.png') }}" alt="ROC Curve" class="fluid-rounded mt-2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-5">
+            <div class="row text-center">
+                <div class="col-md-12">
+                    <h2 class="section-title">⚙️ Key Features</h2>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-3 text-center mb-3">
+                    <div class="feature-card h-100">
+                        <i class="fas fa-upload fa-2x text-primary mb-3"></i>
+                        <h5>Easy Upload</h5>
+                        <p class="small text-muted">Upload MRI scans via Flask Web Interface.</p>
+                    </div>
+                </div>
+                <div class="col-md-3 text-center mb-3">
+                    <div class="feature-card h-100">
+                        <i class="fas fa-notes-medical fa-2x text-danger mb-3"></i>
+                        <h5>Detailed Report</h5>
+                        <p class="small text-muted">Returns tumor type and medical implications.</p>
+                    </div>
+                </div>
+                <div class="col-md-3 text-center mb-3">
+                    <div class="feature-card h-100">
+                        <i class="fas fa-percentage fa-2x text-warning mb-3"></i>
+                        <h5>High Confidence</h5>
+                        <p class="small text-muted">Provides precise confidence percentage.</p>
+                    </div>
+                </div>
+                <div class="col-md-3 text-center mb-3">
+                    <div class="feature-card h-100">
+                        <i class="fas fa-server fa-2x text-success mb-3"></i>
+                        <h5>Flask Powered</h5>
+                        <p class="small text-muted">Robust backend built with Python Flask.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="installation" class="mb-5">
+            <h2 class="section-title">📦 Installation & Usage</h2>
+            <div class="code-block">
+                <div class="mb-2"><span class="code-comment"># 1️⃣ Create virtual environment</span></div>
+                <div class="mb-3"><span class="code-command">python -m venv .venv</span></div>
+                
+                <div class="mb-2"><span class="code-comment"># 2️⃣ Activate the environment (Windows)</span></div>
+                <div class="mb-3"><span class="code-command">".venv\Scripts\activate"</span></div>
+                
+                <div class="mb-2"><span class="code-comment"># 3️⃣ Install dependencies</span></div>
+                <div class="mb-3"><span class="code-command">pip install -r requirements.txt</span></div>
+                
+                <div class="mb-2"><span class="code-comment"># 4️⃣ Run the Flask app</span></div>
+                <div><span class="code-command">python app.py</span></div>
+            </div>
+            <div class="text-center mt-4">
+                <a href="/model" class="btn btn-outline-primary btn-lg"><i class="fas fa-rocket me-2"></i>Launch Model Interface</a>
+            </div>
+        </section>
+
+        <section class="mb-5">
+            <h2 class="section-title">🖼️ Interface Preview</h2>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <img src="{{ url_for('static', filename='images/UI.png') }}" alt="User Interface" class="fluid-rounded w-100 border">
+                    <p class="text-center mt-2 fw-bold text-muted">Upload Page</p>
+                </div>
+                <div class="col-md-6">
+                    <img src="{{ url_for('static', filename='images/result.png') }}" alt="Result Page" class="fluid-rounded w-100 border">
+                    <p class="text-center mt-2 fw-bold text-muted">Prediction Result</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-5 p-4 rounded" style="background: var(--bg-card); border: 1px solid var(--border-color);">
+            <h5><i class="fas fa-folder-open me-2"></i>Project Structure</h5>
+            <pre class="mb-0 text-muted">
+BrainTumorMRIProject/
+│── app.py
+│── model_Ai_dir/
+│── requirements.txt
+│── static/
+│   └── images/
+│── templates/
+│── uploads/
+└── .venv
+            </pre>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container text-center">
+            <h4 class="mb-3">Author: Mohamed Mamdouh</h4>
+            <p class="text-white-50 mb-4">
+                Student at the Faculty of Artificial Intelligence, Menoufia University<br>
+                Machine Intelligence Department
+            </p>
+            
+            <a href="https://www.linkedin.com/in/ai-mohamed-mamdouh-74043b331" target="_blank" class="linkedin-btn">
+                <i class="fab fa-linkedin me-2"></i>Connect on LinkedIn
+            </a>
+            
+            <hr class="border-secondary mt-5 mb-4">
+            <p class="small text-muted mb-0">&copy; 2025 Brain Tumor MRI Project. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        const toggleBtn = document.getElementById('theme-toggle');
+        const body = document.body;
+        const icon = toggleBtn.querySelector('i');
+
+        // Check saved theme from local storage
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            body.setAttribute('data-theme', 'dark');
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            if (body.getAttribute('data-theme') === 'dark') {
+                // Switch to Light
+                body.removeAttribute('data-theme');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+            } else {
+                // Switch to Dark
+                body.setAttribute('data-theme', 'dark');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+    </script>
+</body>
+</html>
